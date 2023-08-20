@@ -1,0 +1,166 @@
+@import "fonts";
+@import "theme.css";
+
+:root {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+
+    color: white;
+
+    border-radius: 8px;
+
+    background-color: transparent;
+
+    --font-color-secondary: rgb(153, 156, 163);
+
+    --background-color-secondary: #181A20;
+}
+
+html {
+    display: flex;
+
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#app {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.page-wrapper {
+
+    .page-title {
+        font-size: 32px;
+    }
+
+    .page-content {
+        display: flex;
+
+        margin-top: 32px;
+    }
+
+    .table-wrapper {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .title-wrapper {
+        display: flex;
+        align-items: center;
+
+        .title-icon {
+            width: 82px;
+            height: 82px;
+
+            border-radius: 16px;
+
+            margin-right: 16px;
+        }
+
+        i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            background: #181a20;
+            border-radius: 53px;
+            width: 72px;
+            height: 72px;
+
+            box-shadow: inset 0px 2px 2px #484b5140;
+        }
+
+        .title-name {
+            //font-size: 24px;
+
+            margin-left: 18px;
+        }
+    }
+}
+
+
+
+
+.go-back {
+    display: flex;
+    align-items: center;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    margin-bottom: 32px;
+
+    color: var(--font-color-secondary);
+
+    > span {
+        margin-left: 8px;
+    }
+}
+
+td {
+    border: none !important;
+}
+
+.p-datatable.p-datatable-striped .p-datatable-tbody>tr:nth-child(even) {
+    background: #13151B;
+}
+
+.p-column-filter-clear-button.p-link {
+    display: none !important;
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .5);
+}
+
+
+
+.app-loading-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--background-color-secondary);
+    z-index: 9999;
+
+    > div > img {
+        animation: square-spin 3s 0s cubic-bezier(0.09, 0.57, 0.49, 0.9) infinite;
+    }
+}
+
+@keyframes square-spin {
+    25% { transform: scale(0.75) }
+    50% { transform: scale(1)  }
+    75% { transform: scale(0.75)  }
+    100% { transform: scale(1)  }
+}
+
+body.overlay {
+    background: transparent;
+
+    .layout-sidebar,
+    .layout-toolbar {
+        display: none;
+    }
+}
