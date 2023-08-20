@@ -29,6 +29,9 @@ if (!app.requestSingleInstanceLock()) {
     process.exit(0)
 }
 
+// width 70%
+// height 76%
+
 // Remove electron security warnings
 // This warning only shows in development mode
 // Read more on https://www.electronjs.org/docs/latest/tutorial/security
@@ -43,8 +46,10 @@ const indexHtml = join(process.env.DIST, 'index.html')
 async function createWindow() {
     win = new BrowserWindow({
         title: 'Paragon Analystiscs',
-        icon: join(process.env.VITE_PUBLIC, 'favicon.ico'),
+        icon: join(process.env.VITE_PUBLIC, 'logo.svg'),
         frame: false,
+        width: 1420,
+        height: 850,
         resizable: true,
         center: true,
         transparent: true,
@@ -145,26 +150,33 @@ ipcMain.on('close', () => {
     win.close();
 });
 
-let prevWidth = 0;
-let prevHeight = 0;
+let interval = null;
 
 ipcMain.on('enable-overlay-mode', () => {
-    prevWidth = win.getSize()[0];
-    prevHeight = win.getSize()[1];
-
-    win.setSize(400, 100, true);
-
     const primaryDisplay = screen.getPrimaryDisplay()
-    const { width, height } = primaryDisplay.workAreaSize
 
-    win.setPosition(width - 400, 0, true)
+    const widthPoss = Math.round(15 / 100 * primaryDisplay.size.width);
+    const heightPoss = Math.round(12 / 100 * primaryDisplay.size.height);
+
+    win.setSize(widthPoss, Math.round(76 / 100 * primaryDisplay.size.height), true);
+    win.setPosition(primaryDisplay.size.width - widthPoss, heightPoss, true)
 
     win.setIgnoreMouseEvents(true, { forward: true });
-    win.setAlwaysOnTop(true);
+
+    clearInterval(interval)
+    interval = setInterval(() => {
+        win.setAlwaysOnTop(true, "normal");
+
+    }, 100)
+
+    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    // win.focus();
 });
 
 ipcMain.on('disable-overlay-mode', () => {
-    win.setSize(prevWidth, prevHeight, true);
+    win.setSize(1420, 850, true);
+    win.center();
     win.setIgnoreMouseEvents(false);
     win.setAlwaysOnTop(false);
+    // win.focus();
 });

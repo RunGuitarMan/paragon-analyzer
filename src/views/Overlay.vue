@@ -1,9 +1,48 @@
 <template>
 <div class="page-wrapper champion-overlay" v-if="champion">
     <div class="build-items-wrapper" v-if="currentBuild.items?.length">
-        <span>Порядок сборки билда</span>
+        <span>Сборка</span>
         <div class="build-items main">
-            <game-item v-for="(item, index) in currentBuild.items" :name="item" :index="index"></game-item>
+            <game-item v-for="(item, index) in currentBuild.items" :name="item"></game-item>
+        </div>
+    </div>
+    <div class="build-items-wrapper" v-if="currentBuild.coreItems?.length">
+        <span>Порядок покупки</span>
+        <div class="build-items">
+            <template v-for="(item, index) in currentBuild.coreItems">
+                <game-item :name="item"></game-item>
+                <i class="pi pi-angle-right" v-if="index !== currentBuild.coreItems.length - 1"></i>
+            </template>
+
+        </div>
+    </div>
+    <div class="build-items-wrapper" v-if="currentBuild.situationalItems?.length">
+        <span>Ситуативно</span>
+        <div class="build-items">
+            <game-item v-for="(item, index) in currentBuild.situationalItems" :name="item"></game-item>
+        </div>
+    </div>
+    <div class="skills-order" v-if="currentBuild.skillsOrder">
+        <div class="skills">
+            <img :src="getSkillIcon('q')" alt="q">
+            <img :src="getSkillIcon('e')" alt="e">
+            <img :src="getSkillIcon('r')" alt="r">
+            <img :src="getSkillIcon('u')" alt="u">
+        </div>
+        <div class="order" v-for="(skill, index) in currentBuild.skillsOrder">
+            <span>{{ index + 1 }}</span>
+            <div class="order-cell">
+                <span v-if="skill === 'q'" style="color: #EB4242">Q</span>
+            </div>
+            <div class="order-cell">
+                <span v-if="skill === 'e'" style="color: #28B5B0">E</span>
+            </div>
+            <div class="order-cell">
+                <span v-if="skill === 'r'" style="color: #409FE5">R</span>
+            </div>
+            <div class="order-cell">
+                <span v-if="skill === 'u'" style="color: #CCA35E">U</span>
+            </div>
         </div>
     </div>
 </div>
@@ -168,56 +207,6 @@ export default class OverlayView extends Vue {
     }
 }
 
-.builds-wrapper {
-    display: flex;
-    margin-top: 16px;
-    
-    .builds-title {
-        margin: 16px 0 0px 32px;
-        font-size: 14px;
-        color: rgb(153, 156, 163);
-    }
-    
-    .side {
-        &:first-child {
-            width: 25%;
-            background: #13151B;
-        }
-        &:last-child {
-            width: 75%;
-            background: #181A20;
-        }
-    }
-    
-    .build-title {
-        padding: 8px 32px;
-        
-        display: flex;
-        flex-direction: column;
-        
-        cursor: pointer;
-        
-        &.current {
-            border-left: #30D9D3 1px solid;
-            background: #181A20;
-        }
-        
-        &:first-child {
-            padding-top: 0;
-        }
-        
-        > span {
-            &:first-child {
-                font-weight: bold;
-            }
-            &:last-child {
-                font-size: 12px;
-                color:  rgb(153, 156, 163);
-            }
-        }
-    }
-}
-
 .empty-builds {
     display: flex;
     margin-top: 64px;
@@ -230,51 +219,72 @@ export default class OverlayView extends Vue {
     }
 }
 
-.build-items-wrapper {
+.champion-overlay {
     position: fixed;
     right: 0;
     top: 0;
+    bottom: 0;
+    left: 0;
+
+    border-top-right-radius: 12px;
+    border-bottm-right-radius: 12px;
+    overflow: hidden;
+
+    background: rgb(24 26 32 / 50%);
     
     display: flex;
     flex-direction: column;
     
     padding: 16px;
-    
+}
+
+.build-items-wrapper {
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 16px;
+
     > span {
         font-weight: bold;
-        font-size: 14px;
-        margin-bottom: 4px;
+        font-size: 12px;
+        margin-bottom: 8px;
     }
-    
+
     .build-items {
         display: flex;
-        
+        flex-wrap: wrap;
+
+        margin-top: -8px;
+        margin-left: -8px;
+
+        width: 82%;
+
         .pi-angle-right {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 4px;
+
+            margin-top: 8px;
+            margin-left: 8px;
         }
-        
-        &.main {
-            > div {
-                width: 48px;
-                height: 48px;
-            }
-        }
-        
+
         > div {
+            min-width: 32px;
             width: 32px;
             height: 32px;
-            
-            &:not(:first-child) {
-                margin-left: 8px;
-            }
+
+            margin-top: 8px;
+            margin-left: 8px;
         }
-        
+
+        .game-item {
+            border-radius: 8px;
+            background: rgb(24 26 32 / 90%);
+        }
+
         .karma {
             width: 32px;
-            
+
             &:first-child {
                 margin-right: 8px;
             }
@@ -284,18 +294,19 @@ export default class OverlayView extends Vue {
 
 .skills-order {
     display: flex;
-    padding: 16px;
+    flex-direction: column;
+
+    margin-top: auto;
     
     .skills {
         display: flex;
-        flex-direction: column;
-        
-        margin-top: 28px;
-        margin-right: 4px;
-        
+
+        margin-left: 28px;
+        margin-bottom: 4px;
+
         img {
             &:not(:first-child) {
-                margin-top: 4px;
+                margin-left: 4px;
             }
             
             width: 24px;
@@ -304,7 +315,10 @@ export default class OverlayView extends Vue {
     
     .order {
         display: flex;
-        flex-direction: column;
+
+        font-size: 12px;
+
+        margin-bottom: 4px;
         
         > span {
             display: flex;
@@ -319,6 +333,8 @@ export default class OverlayView extends Vue {
             display: flex;
             align-items: center;
             justify-content: center;
+
+            font-size: 12px;
             
             width: 24px;
             height: 24px;
@@ -327,10 +343,6 @@ export default class OverlayView extends Vue {
             text-align: center;
             
             margin-left: 4px;
-            
-            &:not(:first-child) {
-                margin-top: 4px;
-            }
         }
     }
 }

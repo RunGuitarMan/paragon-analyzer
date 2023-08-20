@@ -89,8 +89,6 @@ body {
 }
 
 
-
-
 .go-back {
     display: flex;
     align-items: center;
@@ -112,7 +110,7 @@ td {
     border: none !important;
 }
 
-.p-datatable.p-datatable-striped .p-datatable-tbody>tr:nth-child(even) {
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
     background: #13151B;
 }
 
@@ -129,7 +127,6 @@ td {
     border-radius: 4px;
     background-color: rgba(0, 0, 0, .5);
 }
-
 
 
 .app-loading-wrap {
@@ -150,10 +147,18 @@ td {
 }
 
 @keyframes square-spin {
-    25% { transform: scale(0.75) }
-    50% { transform: scale(1)  }
-    75% { transform: scale(0.75)  }
-    100% { transform: scale(1)  }
+    25% {
+        transform: scale(0.75)
+    }
+    50% {
+        transform: scale(1)
+    }
+    75% {
+        transform: scale(0.75)
+    }
+    100% {
+        transform: scale(1)
+    }
 }
 
 body.overlay {
@@ -162,5 +167,12 @@ body.overlay {
     .layout-sidebar,
     .layout-toolbar {
         display: none;
+    }
+
+    .layout-main-container {
+        margin: 0;
+        overflow: hidden;
+
+        border-radius: 8px;
     }
 }
