@@ -15,6 +15,10 @@ export const getSkillIcon = (champion: string, skill: string) => {
     return new URL(`/src/assets/images/champion-skills/${champion}/${skill}.png`, import.meta.url).href
 }
 
+export const getItemIcon = (item: string) => {
+    return new URL(`/src/assets/images/items/${item}.png`, import.meta.url).href
+}
+
 export const getKarmaIcon = (karma: string) => {
     return new URL(`/src/assets/images/karma/${karma}.png`, import.meta.url).href
 }

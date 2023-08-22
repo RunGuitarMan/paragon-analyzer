@@ -11,6 +11,7 @@
 import {Options, prop, Vue} from "vue-class-component";
 import createItemsStore from "../stores/items.store";
 import {IItem} from "../interfaces/IItem";
+import {getItemIcon} from "../utils/utils";
 
 class Props {
     name = prop({
@@ -51,7 +52,7 @@ export default class GameItem extends Vue.with(Props) {
     createTooltip() {
         let tooltip = `
         <div class="title-wrapper">
-            <img src="${this.item.icon}" alt="item">
+            <img src="${getItemIcon(this.item.name)}" alt="item">
             <div>
                 <span>${this.item.internalName}</span>
                 <span>Cтоимость: <span class="price">${this.item.price}</span></span>
