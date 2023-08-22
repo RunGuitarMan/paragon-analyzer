@@ -64,14 +64,6 @@ if (isDev()) {
     autoUpdater.forceDevUpdateConfig = true;
 }
 
-autoUpdater.setFeedURL({
-    provider: 'github',
-    repo: 'paragon-analyzer',
-    owner: 'akcyze',
-    private: true,
-    token: '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'
-})
-
 app.commandLine.appendSwitch("disable-http-cache");
 
 
