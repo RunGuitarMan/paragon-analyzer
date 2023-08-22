@@ -121,27 +121,32 @@ import {useRoute, useRouter} from "vue-router";
 import championsJSON from '../assets/static/champions.json';
 import {IChampion} from "../interfaces/IChampion";
 
-import {getChampionIcon, getKarmaIcon, getRoleIcon, getSkillIcon} from "../utils/utils";
+import {getChampionIcon, getKarmaIcon, getPortraitImage, getRoleIcon, getSkillIcon} from "../utils/utils";
 import {Role, RoleItem, roles} from "../interfaces/role.type";
 import GameItem from "../components/GameItem.vue";
 import {IBuild} from "../interfaces/IBuild";
 
 import overlay from "electron-overlay-window"
+import electron from "electron";
+import createOverlayStore from "../stores/overlay.store";
 
 @Options({
     components: {GameItem},
     beforeMount() {
         const route = useRoute();
         const name = route.params.name;
+        const build = route.query.build;
         
-        this.setChampion(name);
+        this.setChampion(name, build);
+
+        this.setupOverlay();
+    },
+    beforeUnmount() {
+        electron.ipcRenderer.removeListener('toggle-overlay-event', this.onToggleEvent);
     }
 })
 export default class ChampionView extends Vue {
-    
-    
     router = useRouter();
-    
     champion: IChampion;
     
     isDataReady = false;
@@ -154,7 +159,7 @@ export default class ChampionView extends Vue {
     
     currentBuild: IBuild | null = null;
     
-    setChampion(name: string) {
+    setChampion(name: string, buildName: string) {
         this.roles = roles;
         
         const champions = championsJSON.champions as IChampion[];
@@ -167,15 +172,32 @@ export default class ChampionView extends Vue {
         }
         
         this.builds = this.champion.builds.find(b => b.role === this.championRole.role)?.builds ?? [];
-        this.currentBuild = this.builds.length > 0 ? this.builds[0] : null;
-        
+        if (buildName) {
+            this.currentBuild = this.getBuildByName(buildName);
+        } else {
+            this.currentBuild = this.builds.length > 0 ? this.builds[0] : null;
+        }
+
         this.isDataReady = true;
         
         this.$forceUpdate();
     }
-    
+
+    getBuildByName(buildName: string) {
+        let build = null;
+        this.champion.builds.forEach(buildByRole => {
+            buildByRole.builds.forEach(b => {
+                if (b.internalName === buildName) {
+                    build = b;
+                }
+            })
+        });
+
+        return build;
+    }
+
     getPortraitImage() {
-        return `/src/assets/images/champions/${this.champion?.name}/body.png`;
+        return getPortraitImage(this.champion?.name);
     }
     
     getChampionIcon(name: string) {
@@ -190,21 +212,46 @@ export default class ChampionView extends Vue {
         return getKarmaIcon(karma);
     }
     
-    onRoleChanged(event) {
+    onRoleChanged(event: any) {
         this.builds = this.champion.builds.find(b => b.role === event.value.role)?.builds ?? [];
     }
     
     goBack() {
-        this.router.back();
+        this.router.push('/champions');
     }
     
-    openChampion(name) {
+    openChampion(name: string) {
         this.router.push({
             name: 'champion',
             params: {
                 name
             }
         });
+    }
+
+    setupOverlay() {
+        electron.ipcRenderer.on('toggle-overlay-event',  this.onToggleEvent);
+    }
+
+    onToggleEvent() {
+        if (!this.currentBuild)
+            return;
+
+        this.router.push({
+            name: 'overlay',
+            params: {
+                name: this.champion.name,
+                build: this.currentBuild?.internalName
+            },
+            query: {
+                build: this.currentBuild?.internalName
+            }
+        });
+
+        electron.ipcRenderer.send('enable-overlay-mode', '');
+
+        document.body.style.background = 'transparent';
+        document.body.classList.add('overlay');
     }
 }
 

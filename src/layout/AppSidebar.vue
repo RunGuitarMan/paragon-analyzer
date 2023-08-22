@@ -1,7 +1,7 @@
 <template>
 <div class="layout-sidebar">
     <div class="app-logo">
-        <img src="../assets/images/icons/Logo.png" alt="logo">
+        <img src="../assets/logo-transparent.png" alt="logo">
         <span>Paragon Analytics</span>
     </div>
     <div class="items">

@@ -1,5 +1,5 @@
 <template>
-<div class="page-wrapper champion-overlay" v-if="champion">
+<div class="page-wrapper champion-overlay" v-if="champion && isVisible">
     <div class="build-items-wrapper" v-if="currentBuild.items?.length">
         <span>Сборка</span>
         <div class="build-items main">
@@ -62,84 +62,87 @@ import GameItem from "../components/GameItem.vue";
 import {IBuild} from "../interfaces/IBuild";
 
 import overlay from "electron-overlay-window"
+import electron from "electron";
 
 @Options({
     components: {GameItem},
     beforeMount() {
         const route = useRoute();
         const name = route.params.name;
-        
-        this.setChampion(name);
+        const buildName = route.query.build;
+
+        this.setChampion(name, buildName);
+
+        this.setupOverlay();
+    },
+    beforeUnmount() {
+        electron.ipcRenderer.removeListener('toggle-overlay-event', this.onToggleEvent);
+        electron.ipcRenderer.removeListener('toggle-overlay-visibility', this.onVisibilityChange);
     }
 })
 export default class OverlayView extends Vue {
-    
-    
     router = useRouter();
-    
+
     champion: IChampion;
-    
+
     isDataReady = false;
-    
-    championRole: RoleItem ;
-    
-    roles: RoleItem[];
-    
-    builds: IBuild[] = [];
-    
+    isVisible = false;
+
     currentBuild: IBuild | null = null;
-    
-    setChampion(name: string) {
-        this.roles = roles;
-        
+
+    setChampion(name: string, buildName: string) {
         const champions = championsJSON.champions as IChampion[];
-        
         this.champion = champions.find(ch => ch['name'] === name) as IChampion;
-        this.championRole = roles.find(r => r.role === this.champion.role) as RoleItem;
-        
+
         if (!this.champion.builds) {
             this.champion.builds = [];
         }
-        
-        this.builds = this.champion.builds.find(b => b.role === this.championRole.role)?.builds ?? [];
-        this.currentBuild = this.builds.length > 0 ? this.builds[0] : null;
-        
+
+        this.champion.builds.forEach(buildByRole => {
+           buildByRole.builds.forEach(build => {
+               if (build.internalName === buildName) {
+                   this.currentBuild = build;
+               }
+           })
+        });
+
         this.isDataReady = true;
-        
+
         this.$forceUpdate();
     }
-    
-    getPortraitImage() {
-        return `/src/assets/images/champions/${this.champion?.name}/body.png`;
-    }
-    
-    getChampionIcon(name: string) {
-        return getChampionIcon(name);
-    }
-    
+
     getSkillIcon(skill: string) {
         return getSkillIcon(this.champion.name, skill);
     }
-    
-    getKarmaIcon(karma: string) {
-        return getKarmaIcon(karma);
+
+    setupOverlay() {
+        electron.ipcRenderer.once('toggle-overlay-event', this.onToggleEvent);
+        electron.ipcRenderer.on('toggle-overlay-visibility', this.onVisibilityChange);
     }
-    
-    onRoleChanged(event) {
-        this.builds = this.champion.builds.find(b => b.role === event.value.role)?.builds ?? [];
-    }
-    
-    goBack() {
-        this.router.back();
-    }
-    
-    openChampion(name) {
+
+    onToggleEvent() {
+        this.isVisible = true;
+
         this.router.push({
             name: 'champion',
             params: {
-                name
+                name: "twinblast"
+            },
+            query: {
+                build: this.currentBuild?.internalName
             }
         });
+
+        electron.ipcRenderer.send('disable-overlay-mode', '');
+
+        document.body.style.removeProperty('background')
+        document.body.classList.remove('overlay');
+    }
+
+    onVisibilityChange() {
+        this.isVisible = !this.isVisible;
+
+        this.$forceUpdate();
     }
 }
 
@@ -150,14 +153,14 @@ export default class OverlayView extends Vue {
 .page-wrapper {
     display: flex;
     justify-content: center;
-    
+
     position: relative;
-    
+
     .page-content {
         width: 100%;
-        
+
         z-index: 1;
-        
+
         flex-direction: column;
     }
 }
@@ -165,7 +168,7 @@ export default class OverlayView extends Vue {
 .champions {
     display: flex;
     flex-direction: column;
-    
+
     .champion {
     }
 }
@@ -178,8 +181,8 @@ export default class OverlayView extends Vue {
 .side {
     display: flex;
     flex-direction: column;
-    
-    
+
+
     &:first-child {
         width: 35%;
     }
@@ -200,7 +203,7 @@ export default class OverlayView extends Vue {
 .role-item {
     display: flex;
     align-items: center;
-    
+
     img {
         width: 32px;
         margin-right: 8px;
@@ -210,7 +213,7 @@ export default class OverlayView extends Vue {
 .empty-builds {
     display: flex;
     margin-top: 64px;
-    
+
     span {
         font-size: 24px;
         font-weight: bold;
@@ -231,10 +234,10 @@ export default class OverlayView extends Vue {
     overflow: hidden;
 
     background: rgb(24 26 32 / 50%);
-    
+
     display: flex;
     flex-direction: column;
-    
+
     padding: 16px;
 }
 
@@ -297,7 +300,7 @@ export default class OverlayView extends Vue {
     flex-direction: column;
 
     margin-top: auto;
-    
+
     .skills {
         display: flex;
 
@@ -308,18 +311,18 @@ export default class OverlayView extends Vue {
             &:not(:first-child) {
                 margin-left: 4px;
             }
-            
+
             width: 24px;
         }
     }
-    
+
     .order {
         display: flex;
 
         font-size: 12px;
 
         margin-bottom: 4px;
-        
+
         > span {
             display: flex;
             align-items: center;
@@ -328,20 +331,20 @@ export default class OverlayView extends Vue {
             height: 24px;
             text-align: center;
         }
-        
+
         .order-cell {
             display: flex;
             align-items: center;
             justify-content: center;
 
             font-size: 12px;
-            
+
             width: 24px;
             height: 24px;
             background: #0E1015;
             border-radius: 4px;
             text-align: center;
-            
+
             margin-left: 4px;
         }
     }
@@ -349,17 +352,17 @@ export default class OverlayView extends Vue {
 
 .title-wrapper {
     justify-content: space-between;
-    
+
     .title-part {
         display: flex;
-        
+
         &:last-child {
             flex-direction: column;
-            
+
             > div {
                 display: flex;
             }
-            
+
             span {
                 margin-top: 10px;
                 text-align: end;
@@ -372,11 +375,11 @@ export default class OverlayView extends Vue {
 .counter-pick-icon {
     width: 48px;
     height: 48px;
-    
+
     border-radius: 8px;
-    
+
     cursor: pointer;
-    
+
     &:not(:first-child) {
         margin-left: 8px;
     }

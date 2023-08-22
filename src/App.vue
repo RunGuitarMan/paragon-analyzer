@@ -1,14 +1,19 @@
-<script setup lang="ts">
-import HelloWorld from './components/GameItem.vue'
-
-
-
-</script>
-
 <template>
-  <router-view></router-view>
+    <preloader v-if="!appStore.isPreloader"></preloader>
+    <router-view></router-view>
 </template>
+<script lang="ts">
+import Preloader from "./components/Preloader.vue";
+import {Options, Vue} from "vue-class-component";
+import createAppStore from "./stores/app.store";
 
+@Options({
+    components: {Preloader},
+})
+export default class App extends Vue {
+    appStore = createAppStore();
+}
+</script>
 <style>
 
 body {

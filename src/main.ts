@@ -3,8 +3,6 @@ import "./styles/style.scss"
 import App from './App.vue'
 import './samples/node-api'
 import router from "./router";
-
-// import 'primevue/resources/themes/viva-dark/theme.css';
 import 'primeicons/primeicons.css';
 
 import {createPinia} from "pinia";

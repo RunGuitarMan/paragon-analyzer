@@ -85,9 +85,6 @@ import createOverlayStore from "../stores/overlay.store";
         this.initFilter();
         
         this.isDataReady = true;
-        
-        
-        this.setup();
     }
 })
 export default class ChampionsView extends Vue {
@@ -105,29 +102,7 @@ export default class ChampionsView extends Vue {
     isDataReady = false;
     
     isOverlayEnabled = false;
-    
-    
-    setup() {
-        document.onkeydown = function(event) {
-            console.log(event)
-            // evt = evt || window.event;
-            if (event.shiftKey && event.code == "Tab") {
-                alert("Ctrl-Z");
-            }
-        };
-        
-        electron.ipcRenderer.on('toggle-overlay-event',  (evt, message) => {
-            console.log(message); // Returns: {'SAVED': 'File Saved'}
-            createOverlayStore().toggle();
-            this.router.push({
-                name: 'overlay',
-                params: {
-                    name: "twinblast"
-                }
-            });
-        });
-    }
-    
+
     getChampionIcon(name: string) {
         return getChampionIcon(name);
     }

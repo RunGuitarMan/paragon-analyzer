@@ -8,14 +8,14 @@ interface IItemsStore {
 }
 
 // @ts-ignore
-const itemsStore = defineStore('app', {
+const itemsStore = defineStore('items-store', {
     state: (): IItemsStore => ({
         items: []
     }),
     actions: {
         setup() {
             itemsJSON.items.forEach(item => {
-                item["icon"] = `/src/assets/images/items/${item.name}.png`;
+                (<any>item)["icon"] = `/src/assets/images/items/${item.name}.png`;
 
                 this.items.push(item as IItem);
             })
@@ -25,7 +25,7 @@ const itemsStore = defineStore('app', {
                 this.setup();
             }
 
-            return this.items.find(item => item.name === itemName);
+            return this.items.find(item => item.name === itemName) as IItem;
         }
     }
 });

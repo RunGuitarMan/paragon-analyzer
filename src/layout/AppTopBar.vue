@@ -18,7 +18,7 @@ const electron = require("electron");
     components: {}
 })
 export default class AppTopBar extends Vue {
-    
+
     minimize() {
         electron.ipcRenderer.send('minimize', '')
     }
