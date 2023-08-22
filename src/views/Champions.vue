@@ -8,7 +8,7 @@
     <div class="page-content">
         <div class="champions">
             <div class="table-wrapper" v-if="isDataReady">
-                <DataTable :value="champions" v-model:selection="champion" selectionMode="single" dataKey="name"
+                <DataTable :value="championsStore.items" v-model:selection="champion" selectionMode="single" dataKey="name"
                            filterDisplay="row" stripedRows
                            size="normal"
                            @rowSelect="onChampionSelected" :scrollable="true" v-model:filters="filter" data-key="name"
@@ -68,18 +68,12 @@
 <script lang="ts">
 
 import {Options, Vue} from "vue-class-component";
-
-import championsJSON from "../assets/static/champions.json";
-import {IChampion} from "../interfaces/IChampion";
 import {FilterMatchMode} from "primevue/api";
 import {Role, RoleItem, roles} from "../interfaces/role.type";
 import {useRouter} from "vue-router";
-import itemsStore from "../stores/items.store";
 import {getChampionIcon, getRoleIcon} from "../utils/utils";
-import {IBuildByRole} from "../interfaces/IBuild";
+import createChampionsStore from "../stores/champions.store";
 
-import electron from "electron";
-import createOverlayStore from "../stores/overlay.store";
 @Options({
     beforeMount() {
         this.initFilter();
@@ -90,9 +84,8 @@ import createOverlayStore from "../stores/overlay.store";
 export default class ChampionsView extends Vue {
     
     router = useRouter();
-    itemsStore = itemsStore();
+    championsStore = createChampionsStore();
     
-    champions: IChampion[] = championsJSON.champions;
     champion = null;
     
     filter = {};
@@ -100,8 +93,15 @@ export default class ChampionsView extends Vue {
     roles: RoleItem[];
     
     isDataReady = false;
-    
-    isOverlayEnabled = false;
+
+    initFilter() {
+        this.roles = roles;
+
+        this.filter = {
+            'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+            'role': {value: null, matchMode: FilterMatchMode.EQUALS}
+        }
+    }
 
     getChampionIcon(name: string) {
         return getChampionIcon(name);
@@ -110,16 +110,7 @@ export default class ChampionsView extends Vue {
     getRoleIcon(role: Role) {
         return getRoleIcon(role);
     }
-    
-    initFilter() {
-        this.roles = roles;
-        
-        this.filter = {
-            'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
-            'role': {value: null, matchMode: FilterMatchMode.EQUALS}
-        }
-    }
-    
+
     getTierChar(tier: number): string {
         switch (tier) {
             case 1:
@@ -133,6 +124,8 @@ export default class ChampionsView extends Vue {
             case 5:
                 return "D";
         }
+
+        return "NONE";
     }
     
     getTierColor(tier: number): string {
@@ -148,9 +141,11 @@ export default class ChampionsView extends Vue {
             case 5:
                 return "#FFFF7F";
         }
+
+        return "NONE";
     }
     
-    onChampionSelected(event) {
+    onChampionSelected(event: any) {
         const name = event.data.name;
 
         this.router.push({
@@ -159,10 +154,6 @@ export default class ChampionsView extends Vue {
                 name
             }
         });
-    }
-    
-    getRoleIcon(name: Role) {
-        return getRoleIcon(name);
     }
 }
 

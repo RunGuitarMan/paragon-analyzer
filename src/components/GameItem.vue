@@ -1,6 +1,6 @@
 <template>
 <div class="game-item">
-    <img :src="item.icon" alt="item"  v-tooltip="tooltipValue">
+    <img :src="getItemIcon(item.name)" alt="item"  v-tooltip="tooltipValue">
     <span class="index" v-if="index == 0">Стартовое</span>
     <span class="index" v-if="index > 0">{{ index }} - e</span>
 </div>
@@ -22,6 +22,10 @@ class Props {
         type: Number,
         required: false
     })
+    hideTooltip = prop({
+        type: Boolean,
+        required: false
+    })
 }
 
 @Options({
@@ -40,13 +44,17 @@ export default class GameItem extends Vue.with(Props) {
     setup() {
         this.item = this.itemsStore.getItem(this.name);
         
-        const tooltip = this.createTooltip();
+        const tooltip = this.hideTooltip ? "" : this.createTooltip();
         
         this.tooltipValue = {
             value: tooltip,
             escape: true,
             class: "item-tooltip"
         }
+    }
+
+    getItemIcon(name: string) {
+        return getItemIcon(name);
     }
     
     createTooltip() {

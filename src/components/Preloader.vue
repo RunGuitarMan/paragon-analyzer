@@ -11,6 +11,8 @@ import {Options, Vue} from "vue-class-component";
 import electron from "electron";
 import createAppStore from "../stores/app.store";
 import createOverlayStore from "../stores/overlay.store";
+import createItemsStore from "../stores/items.store";
+import createChampionsStore from "../stores/champions.store";
 
 @Options({
     beforeMount() {
@@ -19,6 +21,8 @@ import createOverlayStore from "../stores/overlay.store";
 })
 export default class Preloader extends Vue {
     appStore = createAppStore();
+    itemsStore = createItemsStore();
+    championsStore = createChampionsStore();
 
     message = 'Загрузка...';
 
@@ -38,10 +42,18 @@ export default class Preloader extends Vue {
         }
     }
 
-    finishPreloading() {
-        this.appStore.isPreloader = true;
+    async initData() {
+        await Promise.all([this.itemsStore.setup(), this.championsStore.setup()]);
+    }
 
-        electron.ipcRenderer.send('preloading-completed');
+    finishPreloading() {
+        this.initData().then(() => {
+            this.appStore.isPreloader = true;
+
+            electron.ipcRenderer.send('preloading-completed');
+        }, error => {
+            console.log(error);
+        });
     }
 }
 

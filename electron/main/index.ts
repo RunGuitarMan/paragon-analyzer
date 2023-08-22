@@ -139,6 +139,10 @@ app.whenReady().then(() => {
 
     hotkeys.register([qKeys.I], () => {
         win.webContents.send('toggle-overlay-visibility');
+    });
+
+    hotkeys.register([qKeys.Escape], () => {
+        win.webContents.send('toggle-overlay-visibility');
     })
 
     hotkeys.run();
@@ -233,7 +237,7 @@ ipcMain.on('enable-overlay-mode', () => {
     clearInterval(interval);
     interval = setInterval(() => {
         if (win) {
-            win.setAlwaysOnTop(true);
+            win.setAlwaysOnTop(true, "normal");
         }
     }, 100)
 

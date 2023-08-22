@@ -118,7 +118,7 @@
 import {Options, Vue} from "vue-class-component";
 import {useRoute, useRouter} from "vue-router";
 
-import championsJSON from '../assets/static/champions.json';
+import championsJSON from '../assets/staticDev/champions.json';
 import {IChampion} from "../interfaces/IChampion";
 
 import {getChampionIcon, getKarmaIcon, getPortraitImage, getRoleIcon, getSkillIcon} from "../utils/utils";

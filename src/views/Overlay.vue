@@ -3,14 +3,14 @@
     <div class="build-items-wrapper" v-if="currentBuild.items?.length">
         <span>Сборка</span>
         <div class="build-items main">
-            <game-item v-for="(item, index) in currentBuild.items" :name="item"></game-item>
+            <game-item v-for="(item, index) in currentBuild.items" :name="item" :hideTooltip="true"></game-item>
         </div>
     </div>
     <div class="build-items-wrapper" v-if="currentBuild.coreItems?.length">
         <span>Порядок покупки</span>
         <div class="build-items">
             <template v-for="(item, index) in currentBuild.coreItems">
-                <game-item :name="item"></game-item>
+                <game-item :name="item" :hideTooltip="true"></game-item>
                 <i class="pi pi-angle-right" v-if="index !== currentBuild.coreItems.length - 1"></i>
             </template>
 
@@ -19,7 +19,7 @@
     <div class="build-items-wrapper" v-if="currentBuild.situationalItems?.length">
         <span>Ситуативно</span>
         <div class="build-items">
-            <game-item v-for="(item, index) in currentBuild.situationalItems" :name="item"></game-item>
+            <game-item v-for="(item, index) in currentBuild.situationalItems" :name="item" :hideTooltip="true"></game-item>
         </div>
     </div>
     <div class="skills-order" v-if="currentBuild.skillsOrder">
@@ -53,7 +53,7 @@
 import {Options, Vue} from "vue-class-component";
 import {useRoute, useRouter} from "vue-router";
 
-import championsJSON from '../assets/static/champions.json';
+import championsJSON from '../assets/staticDev/champions.json';
 import {IChampion} from "../interfaces/IChampion";
 
 import {getChampionIcon, getKarmaIcon, getRoleIcon, getSkillIcon} from "../utils/utils";

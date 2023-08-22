@@ -7,6 +7,9 @@ import 'primeicons/primeicons.css';
 
 import {createPinia} from "pinia";
 
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+
 import PrimeVue from 'primevue/config';
 import DataTable from "primevue/datatable";
 import Column from 'primevue/column';
@@ -56,6 +59,8 @@ app.component('TabPanel', TabPanel);
 app.directive('tooltip', Tooltip);
 
 app.use(router);
+
+app.use(VueAxios, axios);
 
 app.mount('#app')
     .$nextTick(() => {

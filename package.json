@@ -1,6 +1,6 @@
 {
 	"name": "paragon-analyzer",
-	"version": "1.0.2",
+	"version": "1.0.5",
 	"main": "dist-electron/main/index.js",
 	"description": "Game Helper",
 	"author": "akcyze@gmail.com",
@@ -41,6 +41,7 @@
 		"primeicons": "^6.0.1",
 		"primevue": "^3.32.0",
 		"qhotkeys": "^1.0.15",
+		"vue-axios": "^3.5.2",
 		"vue-class-component": "^8.0.0-rc.1",
 		"vue-property-decorator": "^10.0.0-rc.3",
 		"vue-router": "^4.2.4"

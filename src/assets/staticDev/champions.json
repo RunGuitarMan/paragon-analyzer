@@ -12,7 +12,7 @@
                         {
                             "internalName": "Криты + Скорость атаки",
                             "creator": "AkcyZe",
-                            "items": ["bright-stone","carbon-alloy-crossbow", "merchants-jewelry-box", "witchs-vial", "threasured-sword-of-the-kingdom"],
+                            "items": ["bright-stone","health-potion", "health-potion", "carbon-alloy-crossbow", "merchants-jewelry-box", "witchs-vial", "threasured-sword-of-the-kingdom"],
                             "coreItems": ["bright-stone", "health-potion", "wind-element-collector", "carbon-alloy-crossbow", "ancient-text-of-nata", "merchants-jewelry-box"],
                             "situationalItems": ["fanatics-desert"],
                             "skillsOrder": ["q", "r", "e", "q", "q", "u", "q", "q", "r", "r", "u", "r", "e", "e", "e", "u", "r", "e"],
