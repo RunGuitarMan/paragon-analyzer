@@ -7,6 +7,8 @@ import 'primeicons/primeicons.css';
 
 import {createPinia} from "pinia";
 
+import VueYandexMetrika from 'vue3-yandex-metrika';
+
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
@@ -58,9 +60,15 @@ app.component('TabView', TabView);
 app.component('TabPanel', TabPanel);
 app.directive('tooltip', Tooltip);
 
-app.use(router);
 
 app.use(VueAxios, axios);
+
+app.use(router);
+app.use(VueYandexMetrika, {
+    id: 94720913,
+    router: router,
+    env: process.env.NODE_ENV
+})
 
 app.mount('#app')
     .$nextTick(() => {

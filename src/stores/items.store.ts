@@ -1,7 +1,5 @@
 import {defineStore} from "pinia";
 import {IItem} from "../interfaces/IItem";
-
-import itemsJSON from "../assets/staticDev/it2ems.json";
 import axios from "axios";
 
 interface IItemsStore {

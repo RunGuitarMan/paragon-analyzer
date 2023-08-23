@@ -9,6 +9,11 @@ import createAppStore from "./stores/app.store";
 
 @Options({
     components: {Preloader},
+    created() {
+        setTimeout(() => {
+            this.$metrika.hit("ParagonAnalytics", { title: "ParagonAnalytics" });
+        }, 1000);
+    }
 })
 export default class App extends Vue {
     appStore = createAppStore();

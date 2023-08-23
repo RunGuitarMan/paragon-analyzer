@@ -1,47 +1,53 @@
 <template>
-<div class="page-wrapper champion-overlay" v-if="champion && isVisible">
-    <div class="build-items-wrapper" v-if="currentBuild.items?.length">
-        <span>Сборка</span>
-        <div class="build-items main">
-            <game-item v-for="(item, index) in currentBuild.items" :name="item" :hideTooltip="true"></game-item>
+<div class="page-wrapper" v-if="champion">
+    <!--    <img :src="img">-->
+    <!--    <span>LvL: {{lvl}}</span>-->
+    <img v-if="!isVisible" class="overlay-logo" src="../assets/logo-transparent.png" alt="logo">
+    <div class="champion-overlay" v-else>
+        <div class="build-items-wrapper" v-if="currentBuild.items?.length">
+            <span>Сборка</span>
+            <div class="build-items main">
+                <game-item v-for="(item, index) in currentBuild.items" :name="item" :hideTooltip="true"></game-item>
+            </div>
         </div>
-    </div>
-    <div class="build-items-wrapper" v-if="currentBuild.coreItems?.length">
-        <span>Порядок покупки</span>
-        <div class="build-items">
-            <template v-for="(item, index) in currentBuild.coreItems">
-                <game-item :name="item" :hideTooltip="true"></game-item>
-                <i class="pi pi-angle-right" v-if="index !== currentBuild.coreItems.length - 1"></i>
-            </template>
+        <div class="build-items-wrapper" v-if="currentBuild.coreItems?.length">
+            <span>Порядок покупки</span>
+            <div class="build-items">
+                <template v-for="(item, index) in currentBuild.coreItems">
+                    <game-item :name="item" :hideTooltip="true"></game-item>
+                    <i class="pi pi-angle-right" v-if="index !== currentBuild.coreItems.length - 1"></i>
+                </template>
 
-        </div>
-    </div>
-    <div class="build-items-wrapper" v-if="currentBuild.situationalItems?.length">
-        <span>Ситуативно</span>
-        <div class="build-items">
-            <game-item v-for="(item, index) in currentBuild.situationalItems" :name="item" :hideTooltip="true"></game-item>
-        </div>
-    </div>
-    <div class="skills-order" v-if="currentBuild.skillsOrder">
-        <div class="skills">
-            <img :src="getSkillIcon('q')" alt="q">
-            <img :src="getSkillIcon('e')" alt="e">
-            <img :src="getSkillIcon('r')" alt="r">
-            <img :src="getSkillIcon('u')" alt="u">
-        </div>
-        <div class="order" v-for="(skill, index) in currentBuild.skillsOrder">
-            <span>{{ index + 1 }}</span>
-            <div class="order-cell">
-                <span v-if="skill === 'q'" style="color: #EB4242">Q</span>
             </div>
-            <div class="order-cell">
-                <span v-if="skill === 'e'" style="color: #28B5B0">E</span>
+        </div>
+        <div class="build-items-wrapper" v-if="currentBuild.situationalItems?.length">
+            <span>Ситуативно</span>
+            <div class="build-items">
+                <game-item v-for="(item, index) in currentBuild.situationalItems" :name="item"
+                           :hideTooltip="true"></game-item>
             </div>
-            <div class="order-cell">
-                <span v-if="skill === 'r'" style="color: #409FE5">R</span>
+        </div>
+        <div class="skills-order" v-if="currentBuild.skillsOrder">
+            <div class="skills">
+                <img :src="getSkillIcon('q')" alt="q">
+                <img :src="getSkillIcon('e')" alt="e">
+                <img :src="getSkillIcon('r')" alt="r">
+                <img :src="getSkillIcon('u')" alt="u">
             </div>
-            <div class="order-cell">
-                <span v-if="skill === 'u'" style="color: #CCA35E">U</span>
+            <div class="order" v-for="(skill, index) in currentBuild.skillsOrder">
+                <span>{{ index + 1 }}</span>
+                <div class="order-cell">
+                    <span v-if="skill === 'q'" style="color: #EB4242">Q</span>
+                </div>
+                <div class="order-cell">
+                    <span v-if="skill === 'e'" style="color: #28B5B0">E</span>
+                </div>
+                <div class="order-cell">
+                    <span v-if="skill === 'r'" style="color: #409FE5">R</span>
+                </div>
+                <div class="order-cell">
+                    <span v-if="skill === 'u'" style="color: #CCA35E">U</span>
+                </div>
             </div>
         </div>
     </div>
@@ -53,16 +59,15 @@
 import {Options, Vue} from "vue-class-component";
 import {useRoute, useRouter} from "vue-router";
 
-import championsJSON from '../assets/staticDev/champions.json';
 import {IChampion} from "../interfaces/IChampion";
 
-import {getChampionIcon, getKarmaIcon, getRoleIcon, getSkillIcon} from "../utils/utils";
-import {Role, RoleItem, roles} from "../interfaces/role.type";
+import {getSkillIcon} from "../utils/utils";
 import GameItem from "../components/GameItem.vue";
 import {IBuild} from "../interfaces/IBuild";
 
-import overlay from "electron-overlay-window"
 import electron from "electron";
+import createTesseractStore from "../stores/tesseract.store";
+import createChampionsStore from "../stores/champions.store";
 
 @Options({
     components: {GameItem},
@@ -78,9 +83,14 @@ import electron from "electron";
     beforeUnmount() {
         electron.ipcRenderer.removeListener('toggle-overlay-event', this.onToggleEvent);
         electron.ipcRenderer.removeListener('toggle-overlay-visibility', this.onVisibilityChange);
+        electron.ipcRenderer.removeListener('toggle-overlay-visibility-hide', this.hideOverlay);
+
+
+        clearInterval(this.interval)
     }
 })
 export default class OverlayView extends Vue {
+    championsStore = createChampionsStore();
     router = useRouter();
 
     champion: IChampion;
@@ -90,20 +100,24 @@ export default class OverlayView extends Vue {
 
     currentBuild: IBuild | null = null;
 
+    // interval: Timer = null;
+
+    // lvl: any = null;
+    // img: string = null;
+
     setChampion(name: string, buildName: string) {
-        const champions = championsJSON.champions as IChampion[];
-        this.champion = champions.find(ch => ch['name'] === name) as IChampion;
+        this.champion = this.championsStore.get(name);
 
         if (!this.champion.builds) {
             this.champion.builds = [];
         }
 
         this.champion.builds.forEach(buildByRole => {
-           buildByRole.builds.forEach(build => {
-               if (build.internalName === buildName) {
-                   this.currentBuild = build;
-               }
-           })
+            buildByRole.builds.forEach(build => {
+                if (build.internalName === buildName) {
+                    this.currentBuild = build;
+                }
+            })
         });
 
         this.isDataReady = true;
@@ -118,6 +132,16 @@ export default class OverlayView extends Vue {
     setupOverlay() {
         electron.ipcRenderer.once('toggle-overlay-event', this.onToggleEvent);
         electron.ipcRenderer.on('toggle-overlay-visibility', this.onVisibilityChange);
+        electron.ipcRenderer.on('toggle-overlay-visibility-hide', this.hideOverlay);
+
+        // this.interval = setInterval(() => {
+        //     this.tesseractStore.getImage().then(img => {
+        //         this.tesseractStore.getLevel(img).then(response => {
+        //             this.lvl = response.text;
+        //             this.img = response.base64data;
+        //         });
+        //     })
+        // }, 3000)
     }
 
     onToggleEvent() {
@@ -126,7 +150,7 @@ export default class OverlayView extends Vue {
         this.router.push({
             name: 'champion',
             params: {
-                name: "twinblast"
+                name: this.champion.name
             },
             query: {
                 build: this.currentBuild?.internalName
@@ -141,6 +165,12 @@ export default class OverlayView extends Vue {
 
     onVisibilityChange() {
         this.isVisible = !this.isVisible;
+
+        this.$forceUpdate();
+    }
+
+    hideOverlay() {
+        this.isVisible = false;
 
         this.$forceUpdate();
     }
@@ -188,40 +218,6 @@ export default class OverlayView extends Vue {
     }
 }
 
-.background {
-    width: fit-content;
-    position: fixed;
-    filter: blur(0px);
-    opacity: 0.1;
-    top: 0;
-}
-
-.tabs {
-    margin-top: 32px;
-}
-
-.role-item {
-    display: flex;
-    align-items: center;
-
-    img {
-        width: 32px;
-        margin-right: 8px;
-    }
-}
-
-.empty-builds {
-    display: flex;
-    margin-top: 64px;
-
-    span {
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        width: 100%;
-    }
-}
-
 .champion-overlay {
     position: fixed;
     right: 0;
@@ -230,10 +226,10 @@ export default class OverlayView extends Vue {
     left: 0;
 
     border-top-right-radius: 12px;
-    border-bottm-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     overflow: hidden;
 
-    background: rgb(24 26 32 / 50%);
+    background: rgb(24 26 32 / 75%);
 
     display: flex;
     flex-direction: column;
@@ -245,7 +241,7 @@ export default class OverlayView extends Vue {
     display: flex;
     flex-direction: column;
 
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 
     > span {
         font-weight: bold;
@@ -350,49 +346,11 @@ export default class OverlayView extends Vue {
     }
 }
 
-.title-wrapper {
-    justify-content: space-between;
+.overlay-logo {
+    width: 32px;
+    height: 32px;
 
-    .title-part {
-        display: flex;
-
-        &:last-child {
-            flex-direction: column;
-
-            > div {
-                display: flex;
-            }
-
-            span {
-                margin-top: 10px;
-                text-align: end;
-                margin-bottom: 4px;
-            }
-        }
-    }
+    opacity: 0.5;
 }
 
-.counter-pick-icon {
-    width: 48px;
-    height: 48px;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    &:not(:first-child) {
-        margin-left: 8px;
-    }
-}
-
-</style>
-
-<style lang="scss">
-.champion-tabs {
-    .p-tabview-panels {
-        margin-top: 16px;
-        background: transparent;
-        padding: 0;
-    }
-}
 </style>

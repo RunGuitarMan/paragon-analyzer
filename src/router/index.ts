@@ -21,7 +21,12 @@ const routes: Array<RouteRecordRaw> = [
                 path: "overlay/:name",
                 name: "overlay",
                 component: () => import("../views/Overlay.vue")
-            }
+            },
+            {
+                path: "settings",
+                name: "settings",
+                component: () => import("../views/Settings.vue")
+            },
         ]
     }
 ];

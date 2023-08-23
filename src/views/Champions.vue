@@ -42,7 +42,7 @@
                                         <img :src="getRoleIcon(filterModel.value)" alt=""/>
                                         <span>{{ filterModel.value }}</span>
                                     </div>
-                                    <span v-else>Any</span>
+                                    <span v-else>Все</span>
                                 </template>
                                 <template #option="slotProps">
                                     <div class="role-item">
@@ -77,7 +77,9 @@ import createChampionsStore from "../stores/champions.store";
 @Options({
     beforeMount() {
         this.initFilter();
-        
+
+        this.$metrika.hit("champions")
+
         this.isDataReady = true;
     }
 })
