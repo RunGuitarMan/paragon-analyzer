@@ -7,6 +7,7 @@ import * as path from "path";
 import setupAutoUpdater from './autoUpdater';
 import setupShortcuts from './shortcuts';
 import setupOverlay from './overlay';
+import setupSettings from "./settings";
 
 // The built directory structure
 //
@@ -107,6 +108,7 @@ async function createWindow() {
 
     setupShortcuts(app, win);
     setupOverlay(ipcMain, win);
+    setupSettings(ipcMain);
 }
 
 

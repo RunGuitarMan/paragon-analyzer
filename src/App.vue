@@ -11,7 +11,7 @@ import createAppStore from "./stores/app.store";
     components: {Preloader},
     created() {
         setTimeout(() => {
-            this.$metrika.hit("ParagonAnalytics", { title: "ParagonAnalytics" });
+            this.$metrika?.hit("ParagonAnalytics", { title: "ParagonAnalytics" });
         }, 1000);
     }
 })

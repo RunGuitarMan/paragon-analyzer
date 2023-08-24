@@ -11,6 +11,7 @@
                 <DataTable :value="championsStore.items" v-model:selection="champion" selectionMode="single" dataKey="name"
                            filterDisplay="row" stripedRows
                            size="normal"
+                           sortField="tier" :sortOrder="1"
                            @rowSelect="onChampionSelected" :scrollable="true" v-model:filters="filter" data-key="name"
                            scrollHeight="flex">
                     <template #header>
@@ -78,7 +79,7 @@ import createChampionsStore from "../stores/champions.store";
     beforeMount() {
         this.initFilter();
 
-        this.$metrika.hit("champions")
+        this.$metrika?.hit("champions")
 
         this.isDataReady = true;
     }

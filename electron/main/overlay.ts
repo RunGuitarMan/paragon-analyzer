@@ -18,7 +18,8 @@ const setupOverlay = (ipcMain: Electron.IpcMain, win: Electron.BrowserWindow) =>
 
         win.setIgnoreMouseEvents(true, {forward: true});
 
-        clearInterval(interval);
+        clearOverlayInterval();
+
         interval = setInterval(() => {
             if (win) {
                 win.setAlwaysOnTop(true, "normal");
@@ -29,7 +30,7 @@ const setupOverlay = (ipcMain: Electron.IpcMain, win: Electron.BrowserWindow) =>
     });
 
     ipcMain.on('disable-overlay-mode', () => {
-        clearInterval(interval);
+        clearOverlayInterval();
 
         win.setSize(1420, 850, true);
         win.center();
@@ -42,8 +43,20 @@ const setupOverlay = (ipcMain: Electron.IpcMain, win: Electron.BrowserWindow) =>
     });
 
     ipcMain.on('close', () => {
-        clearInterval(interval);
+        clearOverlayInterval();
     });
+
+    const clearOverlayInterval = () => {
+        try {
+            if (interval) {
+                clearInterval(interval);
+
+                interval = null;
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
 };
 
 export default setupOverlay;

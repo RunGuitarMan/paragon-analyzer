@@ -47,17 +47,18 @@
                     <div class="side">
                         <span class="builds-title">Билды по стилю игры</span>
                         <div class="build-title" :class="{ current: currentBuild?.internalName === build.internalName }"
-                             v-for="(build, index) in builds" @click="currentBuild = build">
+                             v-for="(build, index) in builds" @click="setBuild(build)">
                             <span>{{ build.internalName }}</span>
                             <span>by "{{ build.creator }}"</span>
                         </div>
                     </div>
                     <div class="side" v-if="currentBuild">
-                        <div class="build-items-wrapper" v-if="currentBuild.items?.length">
+                        <div class="build-items-wrapper" v-if="items?.length">
                             <span>Порядок сборки билда</span>
                             <div class="build-items main">
-                                <game-item v-for="(item, index) in currentBuild.items" :name="item"
-                                           :index="index"></game-item>
+                                <template v-for="(item, index) in items" :index="index">
+                                    <game-item :name="item" ></game-item>
+                                </template>
                             </div>
                         </div>
                         <div class="build-items-wrapper" v-if="currentBuild.coreItems?.length">
@@ -129,9 +130,9 @@ import {useRoute, useRouter} from "vue-router";
 import {IChampion} from "../interfaces/IChampion";
 
 import {getChampionIcon, getKarmaIcon, getPortraitImage, getRoleIcon, getSkillIcon} from "../utils/utils";
-import {RoleItem, roles} from "../interfaces/role.type";
+import {Role, RoleItem, roles} from "../interfaces/role.type";
 import GameItem from "../components/GameItem.vue";
-import {IBuild} from "../interfaces/IBuild";
+import {IBuild, IBuildByRole} from "../interfaces/IBuild";
 import electron from "electron";
 import Tesseract from 'tesseract.js';
 import jimp from 'jimp';
@@ -143,8 +144,9 @@ import createChampionsStore from "../stores/champions.store";
         const route = useRoute();
         const name = route.params.name;
         const build = route.query.build;
+        const role = route.query.role;
 
-        this.setChampion(name, build);
+        this.setChampion(name, role, build);
 
         this.setupOverlay();
     },
@@ -168,15 +170,19 @@ export default class ChampionView extends Vue {
 
     currentBuild: IBuild | null = null;
 
+    items: string[] = [];
+
     dev: string = "";
 
-    setChampion(name: string, buildName: string) {
+    setChampion(name: string, role: Role, buildName: string) {
         this.roles = roles;
 
         this.champion = this.championsStore.get(name);
-        this.championRole = roles.find(r => r.role === this.champion.role) as RoleItem;
 
-        this.$metrika.reachGoal("champion", this.champion.name)
+        const currentRole = role ?? this.champion.role;
+        this.championRole = roles.find(r => r.role === currentRole) as RoleItem;
+
+        this.$metrika?.reachGoal("champion", this.champion.name)
 
         if (!this.champion.builds) {
             this.champion.builds = [];
@@ -184,9 +190,9 @@ export default class ChampionView extends Vue {
 
         this.builds = this.champion.builds.find(b => b.role === this.championRole.role)?.builds ?? [];
         if (buildName) {
-            this.currentBuild = this.getBuildByName(buildName);
+            this.setBuild(this.getBuildByName(buildName));
         } else {
-            this.currentBuild = this.builds.length > 0 ? this.builds[0] : null;
+            this.setBuild(this.builds.length > 0 ? this.builds[0] : null);
         }
 
         this.isDataReady = true;
@@ -207,6 +213,25 @@ export default class ChampionView extends Vue {
         return build;
     }
 
+    setBuild(build: IBuild | null) {
+
+        this.currentBuild = null;
+
+
+        setTimeout(() => {
+            this.currentBuild = build;
+
+            this.items = [];
+            this.currentBuild?.items.forEach(item => {
+                this.items.push(item);
+            })
+
+            this.$forceUpdate();
+
+        }, 100);
+
+    }
+
     getPortraitImage() {
         return getPortraitImage(this.champion?.name);
     }
@@ -225,6 +250,8 @@ export default class ChampionView extends Vue {
 
     onRoleChanged(event: any) {
         this.builds = this.champion.builds.find(b => b.role === event.value.role)?.builds ?? [];
+
+        this.setBuild(this.builds.length > 0 ? this.builds[0] : null);
     }
 
     goBack() {
@@ -255,7 +282,8 @@ export default class ChampionView extends Vue {
                 build: this.currentBuild?.internalName
             },
             query: {
-                build: this.currentBuild?.internalName
+                build: this.currentBuild?.internalName,
+                role: this.championRole.role
             }
         });
 

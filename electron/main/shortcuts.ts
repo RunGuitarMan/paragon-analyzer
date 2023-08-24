@@ -1,23 +1,46 @@
 import {qHotkeys, qKeys} from "qhotkeys";
 import {globalShortcut} from "electron";
+import storage from "electron-json-storage";
 
 const hotkeys = new qHotkeys();
 
-const setupShortcuts = (app: Electron.App, win: BrowserWindow) => {
+const setupShortcuts = (app: Electron.App, win: Electron.BrowserWindow) => {
     app.whenReady().then(() => {
         globalShortcut.register('Shift+Space', () => {
             win.webContents.send('toggle-overlay-event');
         });
 
-        hotkeys.register([qKeys.I], () => {
-            win.webContents.send('toggle-overlay-visibility');
-        });
+        storage.get('settings', (error: any, data: any) => {
+            if (Object.getOwnPropertyNames(data).length > 0) {
+                console.log('Register hotkeys from settings', data)
 
-        hotkeys.register([qKeys.Escape], () => {
-            win.webContents.send('toggle-overlay-visibility-hide');
+                hotkeys.register([data.toggleOverlayKey], () => {
+                    win.webContents.send('toggle-overlay-visibility');
+                });
+
+                hotkeys.register([data.enableDisableOverlayKey], () => {
+                    win.webContents.send('toggle-overlay-event');
+                })
+            } else {
+                console.log('Register hotkeys from defaults')
+
+                hotkeys.register([qKeys.I], () => {
+                    win.webContents.send('toggle-overlay-visibility');
+                });
+
+                hotkeys.register([qKeys.Insert], () => {
+                    win.webContents.send('toggle-overlay-event');
+                });
+            }
+
+            hotkeys.register([qKeys.Escape], () => {
+                win.webContents.send('toggle-overlay-visibility-hide');
+            })
+
+            console.log('Registering...')
+
+            hotkeys.run();
         })
-
-        hotkeys.run();
 
         globalShortcut.unregister('CommandOrControl+R');
     });

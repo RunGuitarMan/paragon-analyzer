@@ -12,6 +12,7 @@ import VueYandexMetrika from 'vue3-yandex-metrika';
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
+import ToastService from 'primevue/toastservice';
 import PrimeVue from 'primevue/config';
 import DataTable from "primevue/datatable";
 import Column from 'primevue/column';
@@ -60,6 +61,7 @@ app.component('TabView', TabView);
 app.component('TabPanel', TabPanel);
 app.directive('tooltip', Tooltip);
 
+app.use(ToastService);
 
 app.use(VueAxios, axios);
 

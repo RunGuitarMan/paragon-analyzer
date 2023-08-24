@@ -68,6 +68,7 @@ import {IBuild} from "../interfaces/IBuild";
 import electron from "electron";
 import createTesseractStore from "../stores/tesseract.store";
 import createChampionsStore from "../stores/champions.store";
+import {Role} from "../interfaces/role.type";
 
 @Options({
     components: {GameItem},
@@ -75,6 +76,7 @@ import createChampionsStore from "../stores/champions.store";
         const route = useRoute();
         const name = route.params.name;
         const buildName = route.query.build;
+        this.role = route.query.role as Role;
 
         this.setChampion(name, buildName);
 
@@ -99,6 +101,8 @@ export default class OverlayView extends Vue {
     isVisible = false;
 
     currentBuild: IBuild | null = null;
+
+    role: Role;
 
     // interval: Timer = null;
 
@@ -153,7 +157,8 @@ export default class OverlayView extends Vue {
                 name: this.champion.name
             },
             query: {
-                build: this.currentBuild?.internalName
+                build: this.currentBuild?.internalName,
+                role: this.role
             }
         });
 

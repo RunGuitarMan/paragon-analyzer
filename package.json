@@ -35,6 +35,7 @@
 	},
 	"dependencies": {
 		"@jitsi/robotjs": "^0.6.13",
+		"electron-json-storage": "^4.6.0",
 		"electron-overlay-window": "^3.3.0",
 		"electron-updater": "^6.1.1",
 		"jimp": "^0.22.10",

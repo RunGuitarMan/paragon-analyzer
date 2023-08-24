@@ -152,8 +152,24 @@ body.overlay {
     filter: blur(3px);
     opacity: 0.05;
     top: 0;
+}
 
-    &.blur {
+.field {
+    margin-top: 32px;
 
+    .p-component {
+        width: 100%;
+    }
+}
+
+.p-toast .p-toast-message.p-toast-message-success {
+    color: white;
+
+    .p-toast-message-text {
+        font-weight: bold;
+    }
+
+    .p-toast-message-content .p-toast-message-icon {
+        color: white;
     }
 }
